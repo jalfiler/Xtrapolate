@@ -7,19 +7,29 @@ OMSBA 5500 Capstone Project
 https://docs.spyder-ide.org/3/projects.html
 '''
 
+# Imports -------------------------------------------------
+import pandas as pd
 
 
+
+# Arrays -------------------------------------------------
 # Predefined dataset of topics
 topics = [
     "Electric Vehicles",
     "Baby Names",
 ]
 
+
+
+
+# Functions -----------------------------------------------
+# Below are potential list of functions to use
 # Function to display available topics
 def display_topics():
     print("Available topics:")
     for i, topic in enumerate(topics, start=1):
         print(f"{i}. {topic}")
+
 
 # Function to get user's selection
 def get_user_selection():
@@ -33,6 +43,25 @@ def get_user_selection():
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+
+# Function to read in EV data and store as dataframe
+def read_ev_data():
+    # Read the provided CSV file into a DataFrame
+    ev_df = pd.read_csv('/mnt/data/EV_Data.csv')
+    
+    # Return the DataFrame
+    return ev_df
+
+# Call the function to store the data in a dataframe
+ev_data_df = read_ev_data()
+
+# Display the first few rows to verify
+ev_data_df.head()
+
+
+
+
+# Main ---------------------------------------------------------
 # Main script
 if __name__ == "__main__":
     print('Get ready to Play!')
