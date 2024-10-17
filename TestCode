@@ -1,0 +1,42 @@
+'''
+Andy Turner
+Thomas Taylor
+Jomaica Lei
+OMSBA 5500 Capstone Project
+
+https://docs.spyder-ide.org/3/projects.html
+'''
+
+
+
+# Predefined dataset of topics
+topics = [
+    "Electric Vehicles",
+    "Baby Names",
+]
+
+# Function to display available topics
+def display_topics():
+    print("Available topics:")
+    for i, topic in enumerate(topics, start=1):
+        print(f"{i}. {topic}")
+
+# Function to get user's selection
+def get_user_selection():
+    while True:
+        try:
+            choice = int(input("Please select a topic by entering the corresponding number: "))
+            if 1 <= choice <= len(topics):
+                return topics[choice - 1]
+            else:
+                print(f"Please enter a number between 1 and {len(topics)}.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+# Main script
+if __name__ == "__main__":
+    print('Get ready to Play!')
+    print('You will be prompted to enter a topic.\n')
+    display_topics()
+    selected_topic = get_user_selection()
+    print(f"\nYou selected: {selected_topic}")
