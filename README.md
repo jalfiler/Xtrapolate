@@ -69,6 +69,7 @@ The project uses a **simple linear regression model** to predict sales based on 
 Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \dots + \epsilon
 ```
 
+
 - **Y**: Dependent variable (the response variable we are predicting), in this case, `SALES`.
 - **β0**: Y-intercept, the baseline sales value when all independent variables are zero.
 - **X1, X2**, ...: Independent variables (predictors) that affect the outcome, such as:
