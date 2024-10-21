@@ -92,7 +92,7 @@ The Mean Absolute Percentage Error (MAPE) formula is:
 
 
 Where:
-- **`A_i`**: Actual value
+- **```math A_i```**: Actual value
 - **`F_i`**: Forecasted value
 - **`n`**: Total number of observations
 
