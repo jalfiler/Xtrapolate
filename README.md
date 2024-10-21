@@ -69,16 +69,16 @@ The project uses a **simple linear regression model** to predict sales based on 
 Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \dots + \epsilon
 ```
 
-- Y: Dependent variable (the response variable we are predicting), in this case, SALES.
-- β0: Y-intercept, the baseline sales value when all independent variables are zero.
-- X1, X2, ...: Independent variables (predictors) that affect the outcome, such as:
-  - QUANTITYORDERED: Number of units ordered.
-  - PRICEEACH: Price per unit.
-  - MONTH_ID, YEAR_ID: Time-related variables.
-  - COUNTRY: Geographic location (encoded as a categorical variable).
-  - PRODUCT: Specific products (encoded as categorical variables).
-- β1, β2, ...: Coefficients representing the effect of each independent variable on the dependent variable (i.e., how much the SALES change when each predictor increases by one unit).
-- ε: Error term accounting for the variability in sales not explained by the model.
+- **Y**: Dependent variable (the response variable we are predicting), in this case, `SALES`.
+- **β0**: Y-intercept, the baseline sales value when all independent variables are zero.
+- **X1, X2**, ...: Independent variables (predictors) that affect the outcome, such as:
+  - `QUANTITYORDERED`: Number of units ordered.
+  - `PRICEEACH`: Price per unit.
+  - `MONTH_ID`, `YEAR_ID`: Time-related variables.
+  - `COUNTRY`: Geographic location (encoded as a categorical variable).
+  - `PRODUCT: Specific products (encoded as categorical variables).
+- **β1, β2**, ...: Coefficients representing the effect of each independent variable on the dependent variable (i.e., how much the SALES change when each predictor increases by one unit).
+- **ε:** Error term accounting for the variability in sales not explained by the model.
 
 This regression equation allows us to model the relationship between the sales data and the predictors, giving us a framework to predict future sales based on historical patterns and product-specific features.
 
@@ -95,9 +95,9 @@ The Mean Absolute Percentage Error (MAPE) formula is:
 
 
 Where:
-- **A_i**: Actual value
-- **F_i**: Forecasted value
-- **n**: Total number of observations
+- **`A_i`**: Actual value
+- **`F_i`**: Forecasted value
+- **`n`**: Total number of observations
 
 MAPE is used to evaluate the accuracy of the model by measuring the percentage error between the predicted and actual values.
 
