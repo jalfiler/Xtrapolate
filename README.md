@@ -77,7 +77,7 @@ Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \dots + \epsilon
   - `PRICEEACH`: Price per unit.
   - `MONTH_ID`, `YEAR_ID`: Time-related variables.
   - `COUNTRY`: Geographic location (encoded as a categorical variable).
-  - `PRODUCT: Specific products (encoded as categorical variables).
+  - `PRODUCT`: Specific products (encoded as categorical variables).
 - **β1, β2**, ...: Coefficients representing the effect of each independent variable on the dependent variable (i.e., how much the SALES change when each predictor increases by one unit).
 - **ε:** Error term accounting for the variability in sales not explained by the model.
 
