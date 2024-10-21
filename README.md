@@ -86,9 +86,6 @@ This regression equation allows us to model the relationship between the sales d
 
 The Mean Absolute Percentage Error (MAPE) formula is:
 
-
-### MAPE (Mean Absolute Percentage Error)
-
 ```math
 \text{MAPE} = \frac{1}{n} \sum_{i=1}^{n} \left| \frac{A_i - F_i}{A_i} \right| \times 100
 ```
