@@ -113,13 +113,13 @@ The primary goal is to help users compare their predictions against the model’
 
 ## Game User Interface
 
-## Gameplay/Player Values
+### Gameplay/Player Values
 <img src="./pics/Player.png" width="600"/>
 
-## Results and Details
+### Results and Details
 <img src="./pics/Results.png" width="600"/>
 
-## Gameplay Loop
+### Gameplay Loop
 <img src="./pics/Loop.png" width="600"/>
 
 
