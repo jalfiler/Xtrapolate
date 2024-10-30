@@ -111,6 +111,21 @@ MAPE is used to evaluate the accuracy of the model by measuring the percentage e
 
 The primary goal is to help users compare their predictions against the model’s predictions and true values. By doing so, users can learn how close their estimates are and see by what percentage their predictions differ from both the actual values and the machine learning model’s predictions.
 
+## Game User Interface
+
+## Gameplay/Player Values
+<img src="./pics/Player.png" width="600"/>
+
+## Results and Details
+<img src="./pics/Results.png" width="600"/>
+
+## Gameplay Loop
+<img src="./pics/Loop.png" width="600"/>
+
+
+
+
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
