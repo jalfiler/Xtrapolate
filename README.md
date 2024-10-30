@@ -41,6 +41,7 @@ We are using a **Sales Dataset** from [Kaggle](https://www.kaggle.com/datasets/k
     - `matplotlib` (3.4.3)
     - `scikit-learn` (0.24.2)
     - `seaborn` (0.11.2)
+    - `flask` (2.0.1)
 
 ### Setup Instructions
 
