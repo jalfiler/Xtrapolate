@@ -9,8 +9,6 @@ from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.metrics import mean_squared_error, r2_score
 
 #Xtrapolate Functions
-from tkinter import *
-from tkinter.simpledialog import askfloat
 import random
 
 #Bokeh Charts.py
@@ -192,6 +190,8 @@ class DataLoader(BaseManager):
             pd.DataFrame: A DataFrame containing summary statistics.
         """
         return self.data.describe()
+    
+
     
 
     '''
@@ -388,6 +388,7 @@ data_loader.handle_missing_values()
 
 # Split the data (assuming 'SALES' is the target column)
 X_train, X_test, y_train, y_test = data_loader.split_data(target_column='SALES')
+print('X_train data: \n', X_train)
 
 
 # Output first few rows of training data for verification
@@ -402,12 +403,6 @@ summary_stats = summ_stats_df.get_summary_stats()
 print("\n")
 print("Summary Statistics on the DataFrame:")
 print(summary_stats)
-
-# Convert to arrays for Flask
-X_train = np.array(X_train)
-X_test = np.array(X_test)
-y_train = np.array(y_train)
-y_test = np.array(y_test)
 
 # Dataset is preprocessed and cleaned ready for testing and predictions !!!
 
@@ -432,6 +427,12 @@ print("\n")
 
 print("Backend Program Executed Successfully \n \n \n")
 print("---------------------------------------------------- \n")
+
+# Convert to arrays for Flask
+X_train = X_train.to_numpy()
+X_test = X_test.to_numpy()
+y_train = y_train.to_numpy()
+y_test = y_test.to_numpy()
 
 
 # END of BACKEND PROGRAM ----------------------------------------------------------------------------------------
@@ -500,6 +501,7 @@ def homepage():
     </html>'''
     
 
+# NEED TO FEED AN ARRAY INTO THE GUESS FUNCTION SO IT WORKS
 @app.route('/guess/', methods = ['POST', 'GET'])
 def guess():
     if request.method == 'GET':
@@ -559,14 +561,13 @@ def display():
         user_guesses.append(float(request.form.get("g4")))
         user_guesses.append(float(request.form.get("g5")))
         
-        # weights
         weights = np.ones(len(X_test))
         ybar = (sum(y_train)+sum(y_test))/(len(y_train)+len(y_test))
         user_score = scoring(user_guesses, y_test, weights, ybar)
         #intercept, coefficients, ML_pred = auto_reg_lin(X_train, Y_train, X_test)
-        coefficients = regr.get_coefficients()
-        intercept = regr.get_intercept()
-        weights = regr.return_weights()
+        gamecoefficients = regr.get_coefficients()
+        intercepts = regr.get_intercept()
+        ML_pred = regr.predict()
         ML_Score = 0 #scoring(ML_pred, Y_test, weights, ybar)
         p = figure(height=350, sizing_mode="stretch_width")
         p.add_tools(HoverTool())
