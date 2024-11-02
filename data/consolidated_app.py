@@ -389,6 +389,7 @@ data_loader.handle_missing_values()
 # Split the data (assuming 'SALES' is the target column)
 X_train, X_test, y_train, y_test = data_loader.split_data(target_column='SALES')
 
+
 # Output first few rows of training data for verification
 print("First few rows of training data: \n", X_train.head())
 
@@ -401,6 +402,12 @@ summary_stats = summ_stats_df.get_summary_stats()
 print("\n")
 print("Summary Statistics on the DataFrame:")
 print(summary_stats)
+
+# Convert to arrays for Flask
+X_train = np.array(X_train)
+X_test = np.array(X_test)
+y_train = np.array(y_train)
+y_test = np.array(y_test)
 
 # Dataset is preprocessed and cleaned ready for testing and predictions !!!
 
