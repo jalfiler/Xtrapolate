@@ -41,6 +41,7 @@ We are using a **Sales Dataset** from [Kaggle](https://www.kaggle.com/datasets/k
     - `matplotlib` (3.4.3)
     - `scikit-learn` (0.24.2)
     - `seaborn` (0.11.2)
+    - `flask` (2.0.1)
 
 ### Setup Instructions
 
@@ -93,7 +94,7 @@ The Mean Absolute Percentage Error (MAPE) formula is:
 
 
 Where:
-- **A_i**: Actual value
+- **`A_i`**: Actual value
 - **`F_i`**: Forecasted value
 - **`n`**: Total number of observations
 
@@ -109,6 +110,21 @@ MAPE is used to evaluate the accuracy of the model by measuring the percentage e
 ### Anticipated Results:
 
 The primary goal is to help users compare their predictions against the model’s predictions and true values. By doing so, users can learn how close their estimates are and see by what percentage their predictions differ from both the actual values and the machine learning model’s predictions.
+
+## Game User Interface
+
+### Gameplay/Player Values
+<img src="./pics/Player.png" width="600"/>
+
+### Results and Details
+<img src="./pics/Results.png" width="600"/>
+
+### Gameplay Loop
+<img src="./pics/Loop.png" width="600"/>
+
+
+
+
 
 ## License
 

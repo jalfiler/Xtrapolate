@@ -25,7 +25,7 @@ from xtrapolate_functions import scoring, auto_reg_lin
 # Flask constructor
 app = Flask(__name__)
 
-
+from bokeh.models import HoverTool
 
 #dummy data 
 
@@ -40,51 +40,86 @@ Y_test = [22, 24, 26, 28, 30]
 
 Plot_Title = 'Dummy Data'
 # Root endpoint
+
 @app.route('/')
 def homepage():
+    
+    
+    return f'''
+<html lang="en">
+	<head>
+		
+		<title>Xtrapolate</title>
+	</head>
+	<body>
+		
+           
+           <form action="/guess" method = "POST">
+  
+   <p><input type = "submit" value = "Start game" /></p>
+   </form>
+           
+	</body>
+</html>'''
+    
+    
 
-	# Creating Plot Figure
-	p = figure(height=350, sizing_mode="stretch_width")
 
-	# Defining Plot to be a Scatter Plot
-	p.circle(
-		[i for i in X_train],
-		[j for j in Y_train],
-		size=20,
-		color="navy",
-		alpha=0.5
-	)
+@app.route('/guess/', methods = ['POST', 'GET'])
+def guess():
+    
+    if request.method == 'GET':
+        
+        return f"The URL /guess is accessed directly. Try going to '/form' to submit form"
+    
+    
+    if request.method == 'POST':
 
-	# Get Chart Components
-	script, div = components(p)
-
-	# Return the components to the HTML template
-	return f'''
-	<html lang="en">
-		<head>
-			<script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.4.3.min.js"></script>
-			<title>Bokeh Charts</title>
-		</head>
-		<body>
-			<h1> Graph of {Plot_Title} </h1>
-			{ div }
-			{ script }
-            
-            
-            <h1> Submit a prediction for Y at the following X values </h1>
-            
-            <form action="/display" method = "POST">
-    <p> {X_test[0]} <input type = "text" name = "g1" /></p>
-    <p> {X_test[1]} <input type = "text" name = "g2" /></p>
-    <p> {X_test[2]} <input type = "text" name = "g3" /></p>
-    <p> {X_test[3]} <input type = "text" name = "g4" /></p>
-    <p> {X_test[4]} <input type = "text" name = "g5" /></p>
-    <p><input type = "submit" value = "Submit" /></p>
-    </form>
-            
-		</body>
-	</html>
-	'''
+    	# Creating Plot Figure
+        p = figure(height=350, sizing_mode="stretch_width")
+        p.add_tools(HoverTool())
+        # Defining Plot to be a Scatter Plot
+        p.circle(
+    		[i for i in X_train],
+    		[j for j in Y_train],
+    		size=20,
+    		color="navy",
+    		alpha=0.5
+    	)
+        
+        
+        
+    
+    	# Get Chart Components
+        script, div = components(p)
+    
+    	# Return the components to the HTML template
+        return f'''
+    	<html lang="en">
+    		<head>
+    			<script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.4.3.min.js"></script>
+    			<title>Bokeh Charts</title>
+    		</head>
+    		<body>
+    			<h1> Graph of {Plot_Title} </h1>
+    			{ div }
+    			{ script }
+                
+                
+                <h1> Submit a prediction for Y at the following X values </h1>
+                
+                <form action="/display" method = "POST">
+        <p> {X_test[0]} <input type = "number" step = "any" name = "g1" required /></p>
+        <p> {X_test[1]} <input type = "number" step = "any" name = "g2"  required /></p>
+        <p> {X_test[2]} <input type = "number" step = "any" name = "g3" required /></p>
+        <p> {X_test[3]} <input type = "number" step = "any" name = "g4" required /></p>
+        <p> {X_test[4]} <input type = "number" step = "any" name = "g5" required /></p>
+        <p><input type = "submit" value = "Submit" /></p>
+        </form>
+                
+    		</body>
+    	</html>
+    	'''
 
 
 @app.route('/display/', methods = ['POST', 'GET'])
@@ -121,30 +156,35 @@ def display():
         
         
         p = figure(height=350, sizing_mode="stretch_width")
+        
+        p.add_tools(HoverTool())
 
     	# Defining Plot to be a Scatter Plot
         p.circle(
     		[i for i in X_train],
     		[j for j in Y_train],
     		size=20,
-    		color="navy",
-    		alpha=0.5
+    		color="blue",
+    		alpha=0.8,
+            legend_label = "Actual value"
     	)
         
         p.circle(
     		[i for i in X_test],
     		[j for j in Y_test],
     		size=20,
-    		color="navy",
-    		alpha=0.5
+    		color="blue",
+    		alpha=0.8
+            
     	)
         
         p.circle(
     		[i for i in X_test],
     		[j for j in user_guesses],
-    		size=20,
-    		color="green",
-    		alpha=0.5
+    		size=10,
+    		color="orange",
+    		alpha=0.9,
+            legend_label = "User Predicted value"
     	)
         
         p.circle(
@@ -152,10 +192,11 @@ def display():
     		[j for j in ML_pred],
     		size=5,
     		color="red",
-    		alpha=0.8
+    		alpha=0.8,
+            legend_label = "ML Predicted value"
     	)
         
-        
+        p.legend.location = 'top_left'
 
     	# Get Chart Components
         script, div = components(p)
@@ -178,6 +219,18 @@ def display():
                 
                 <h2> User Wins </h2>
                 
+                <form action="/guess" method = "POST">
+       
+        <p><input type = "submit" value = "Continue Playing" /></p>
+         </form>
+         
+             
+                <form action="/" method = "POST">
+       
+        <p><input type = "submit" value = "Return to Homepage" /></p>
+        </form>
+                    
+                
     		</body>
     	</html>
     	'''
@@ -198,6 +251,22 @@ def display():
                <h2> User Score was: {user_score}, ML Score Was {ML_Score } <h2>
                 
                 <h2> ML Wins </h2>
+                
+                
+                    
+           <form action="/guess" method = "POST">
+  
+   <p><input type = "submit" value = "Continue Playing" /></p>
+    </form>
+    
+        
+           <form action="/" method = "POST">
+  
+   <p><input type = "submit" value = "Return to Homepage" /></p>
+   </form>
+                
+                
+                
                 
     		</body>
     	</html>
