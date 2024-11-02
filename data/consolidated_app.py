@@ -15,7 +15,7 @@ import random
 
 #Bokeh Charts.py
 from flask import Flask
-from flask import Flask,render_template,request
+from flask import Flask, render_template, request
 from bokeh.embed import components
 from bokeh.plotting import figure
 # from xtrapolate_functions import scoring, auto_reg_lin
@@ -480,6 +480,9 @@ print('Here is a chart of the data:')
 # Display the chart here ----------------
 
 
+# Debugging for Flask/Bokeh
+print("X test data: ", X_test[0])
+
 # Run the Application Start Bokeh Charts -------------------------------------------------------------------
 Plot_Title = 'Dummy Data'
 @app.route('/')
@@ -487,17 +490,12 @@ def homepage():
         return f'''
     <html lang="en">
         <head>
-            
             <title>Xtrapolate</title>
         </head>
-        <body>
-            
-            
+        <body>            
             <form action="/guess" method = "POST">
-    
     <p><input type = "submit" value = "Start game" /></p>
     </form>
-            
         </body>
     </html>'''
     
@@ -535,11 +533,11 @@ def guess():
                 { script }
                 <h1> Submit a prediction for Y at the following X values </h1>
                 <form action="/display" method = "POST">
-        <p> {X_test[0]} <input type = "number" step = "any" name = "g1" required /></p>
-        <p> {X_test[1]} <input type = "number" step = "any" name = "g2"  required /></p>
-        <p> {X_test[2]} <input type = "number" step = "any" name = "g3" required /></p>
-        <p> {X_test[3]} <input type = "number" step = "any" name = "g4" required /></p>
-        <p> {X_test[4]} <input type = "number" step = "any" name = "g5" required /></p>
+        <p> {X_test[0][0]} <input type = "number" step = "any" name = "g1" required /></p>
+        <p> {X_test[1][1]} <input type = "number" step = "any" name = "g2"  required /></p>
+        <p> {X_test[2][2]} <input type = "number" step = "any" name = "g3" required /></p>
+        <p> {X_test[3][3]} <input type = "number" step = "any" name = "g4" required /></p>
+        <p> {X_test[4][4]} <input type = "number" step = "any" name = "g5" required /></p>
         <p><input type = "submit" value = "Submit" /></p>
         </form>
             </body>
@@ -576,7 +574,7 @@ def display():
         # Defining Plot to be a Scatter Plot
         p.circle(
             [i for i in X_train],
-            [j for j in Y_train],
+            [j for j in y_train],
             size=20,
             color="blue",
             alpha=0.8,
@@ -585,7 +583,7 @@ def display():
         
         p.circle(
             [i for i in X_test],
-            [j for j in Y_test],
+            [j for j in y_test],
             size=20,
             color="blue",
             alpha=0.8
@@ -602,7 +600,7 @@ def display():
         
         p.circle(
             [i for i in X_test],
-            [j for j in ML_pred],
+            [j for j in y_pred],
             size=5,
             color="red",
             alpha=0.8,
