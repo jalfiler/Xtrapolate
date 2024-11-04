@@ -5,8 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.pipeline import make_pipeline
 
 #Xtrapolate Functions
 import random
@@ -144,6 +146,7 @@ class GameManager:
 
 
 
+
 # DataLoader Class -------------------------------------------------------------------------------------------------------
 # DataLoader class: Responsible for loading and preprocessing data, including handling NaN values and non-numeric columns.
 class DataLoader(BaseManager):
@@ -191,7 +194,40 @@ class DataLoader(BaseManager):
         """
         return self.data.describe()
     
+   
+    def filter_data(self):
+        # Prompt the user to filter data based on specific criteria
+        filter_choice = input("Choose a filter type:\n1. Random PRODUCTLINE filter\n2. Specific PRODUCTLINE(s)\n3. Filter by Status 'Shipped'\n4. Filter by COUNTRY\nEnter choice (1, 2, 3, or 4): ")
+        
+        if filter_choice == "1":
+            # Random PRODUCTLINE filter
+            unique_productlines = self.data['PRODUCTLINE'].unique()
+            random_productline = np.random.choice(unique_productlines)
+            self.data = self.data[self.data['PRODUCTLINE'] == random_productline]
+            print(f"Data filtered randomly by PRODUCTLINE: {random_productline}")
+        
+        elif filter_choice == "2":
+            # User-specified PRODUCTLINE filter
+            print("Available PRODUCTLINE options:", self.data['PRODUCTLINE'].unique())
+            user_selection = input("Enter PRODUCTLINE(s) to filter by (comma-separated if multiple): ").split(',')
+            user_selection = [item.strip() for item in user_selection]
+            self.data = self.data[self.data['PRODUCTLINE'].isin(user_selection)]
+            print(f"Data filtered by user-selected PRODUCTLINE(s): {user_selection}")
+        
+        elif filter_choice == "3":
+            # Filter by Status 'Shipped' for entire dataset 
+            self.data = self.data[self.data['STATUS'] == 'Shipped']
+            print("Data filtered by Status = 'Shipped'")
 
+        elif filter_choice == "4":
+            # Filter by COUNTRY
+            print("Available COUNTRY options:", self.data['COUNTRY'].unique())
+            selected_country = input("Enter COUNTRY to filter by: ")
+            self.data = self.data[self.data['COUNTRY'] == selected_country]
+            print(f"Data filtered by COUNTRY: {selected_country}")
+        
+        else:
+            print("Invalid choice. Please enter 1, 2, 3, or 4.")
     
 
     '''
@@ -297,6 +333,20 @@ class ModelManager:
             else:
                 break
         return intercept, coefficients, pred
+
+    def polynomial_model(degree):
+        """Creates a polynomial regression model of a given degree."""
+        return make_pipeline(PolynomialFeatures(degree), LinearRegression())
+        '''
+        Example usage polynomial_model:
+        model = create_polynomial_model(2)
+        model.fit(X, y)
+
+        # Predict values
+        y_pred = model.predict(X)
+        print(y_pred)
+        '''
+
 
 # How to Use the ModelManager Class ----------------------
 # Create an instance of the class
