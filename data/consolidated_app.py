@@ -284,7 +284,7 @@ class DataLoader(BaseManager):
     
 
     # Need to fix this and incorporate into the actual program...
-    def select_and_drop(self, n = 20):
+    def select_and_drop(self, n = 30):
         '''
         Randomly selects n rows from a dataframe and drops the rest
 
@@ -296,7 +296,19 @@ class DataLoader(BaseManager):
             pd.DataFrame: a new dataframe filtered to n rows with all other rows dropped
         '''
         # use the sample method to randomly select
-        return self.data.sample(n=n)
+        sample_indices = self.data.sample(n=n).index
+        self.data = self.data.loc[sample_indices]
+        return self.data
+
+    def row_count(self):
+        """
+        This function returns the number of rows in a pandas DataFrame.
+        Args:
+            df: The DataFrame to count the rows of.
+        Returns:
+            The number of rows in the DataFrame.
+        """
+        return len(self.data.index)
 
     '''
     AT: - We should create functions to filter the dataset (maybe based on country or timeframe?)
@@ -557,8 +569,10 @@ y_test = y_test.to_numpy()
 '''
 data_loader = DataLoader(sales_data)
 data_loader.select_and_drop()
+print('Here is the row count of the dataframe: ',data_loader.row_count())
 data_loader.preprocess_data()
 data_loader.handle_missing_values()
+print('Here is the row count of the processed dataframe: ',data_loader.row_count())
 
 # END of BACKEND PROGRAM ----------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------
