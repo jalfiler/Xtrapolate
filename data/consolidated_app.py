@@ -283,6 +283,21 @@ class DataLoader(BaseManager):
             print("Invalid choice. Please enter 1, 2, 3, or 4.")
     
 
+    # Need to fix this and incorporate into the actual program...
+    def select_and_drop(self, n = 20):
+        '''
+        Randomly selects n rows from a dataframe and drops the rest
+
+        Args:
+            df (pd.DataFrame): the input dataframe
+            n (int): the number of rows to randomly select
+
+        Returns:
+            pd.DataFrame: a new dataframe filtered to n rows with all other rows dropped
+        '''
+        # use the sample method to randomly select
+        return self.data.sample(n=n)
+
     '''
     AT: - We should create functions to filter the dataset (maybe based on country or timeframe?)
     AT: - And we should prompt the player to select which filter they want to apply
@@ -541,6 +556,7 @@ y_test = y_test.to_numpy()
 """
 '''
 data_loader = DataLoader(sales_data)
+data_loader.select_and_drop()
 data_loader.preprocess_data()
 data_loader.handle_missing_values()
 
@@ -578,6 +594,7 @@ print(f"\nYou selected: {selected_topic}")
 print("\n")
 print("Here are the summary statistics of the Sales Data: \n")
 summ_stats_df = DataLoader(sales_data_df)
+summ_stats_df.select_and_drop()
 summ_stats_df.preprocess_data()
 summ_stats_df.handle_missing_values()
 summary_stats = summ_stats_df.get_summary_stats()
@@ -603,6 +620,7 @@ def bridge(data_set):
     if data_set == "Sales":
         
         data_loader = DataLoader(sales_data)
+        data_loader.select_and_drop()
         data_loader.preprocess_data()
         data_loader.handle_missing_values()
         
@@ -829,4 +847,4 @@ X_train, X_test, y_train, y_test,  Plot_Title = bridge("Sales")
 
 if __name__ == '__main__':
 	# Run the application on the local development server
-	app.run(debug=True)
+	app.run(debug=False)
