@@ -657,7 +657,19 @@ def bridge(data_set):
 
 @app.route('/')
 def start_page():
-    return render_template('start_page.html')
+    #return render_template('start_page.html')
+    return f'''
+    <html lang="en">
+    <body>      
+    <h1>Welcome to Xtrapolate!</h1>
+    <h2>a data science game</h2>
+    <h3>Created by: Thomas Taylor, Jomaica Lei, Andy Turner</h3>
+    <form action="/guess" method = "POST">
+    <p><input type = "submit" value = "Start game" /></p>
+    </form>
+    </body>
+    </html>
+    '''
     
 
 # NEED TO FEED AN ARRAY INTO THE GUESS FUNCTION SO IT WORKS
