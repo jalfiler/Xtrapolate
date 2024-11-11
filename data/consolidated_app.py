@@ -11,7 +11,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.pipeline import make_pipeline
 
 from datetime import datetime
-
+from datetime import timedelta
 #Xtrapolate Functions
 import random
 
@@ -670,8 +670,7 @@ def start_page():
     </body>
     </html>
     '''
-    
-
+   
 # NEED TO FEED AN ARRAY INTO THE GUESS FUNCTION SO IT WORKS
 @app.route('/guess/', methods = ['POST', 'GET'])
 def guess():
@@ -737,6 +736,21 @@ def display():
         
         X_train, X_test, y_train, y_test,  Plot_Title = bridge("Sales")
         
+        
+        train_days = []
+        test_days = []
+        for i in X_test:
+            delt = i - X_train[0]
+            d =  delt.astype('timedelta64[D]')
+            test_days.append(d / np.timedelta64(1, 'D'))
+        for i in X_train:
+            delt = i - X_train[0]
+            d =  delt.astype('timedelta64[D]')
+            train_days.append(d / np.timedelta64(1, 'D'))
+        
+        
+        train_days = np.array(train_days)
+        test_days = np.array(test_days)
         # user guesses
         user_guesses = []
         user_guesses.append(float(request.form.get("g1")))
@@ -762,11 +776,11 @@ def display():
         #ntercept, coefficients, ML_pred = regr.auto_reg_lin(X_train, y_train, X_test)
         
         
-        regr.fit(X_test.reshape(-1, 1), y_test)
+        regr.fit(train_days.reshape(-1, 1), y_train)
         
         gamecoefficients = regr.get_coefficients()
         intercepts = regr.get_intercept()
-        ML_pred = regr.predict(X_test.reshape(-1, 1))
+        ML_pred = regr.predict(test_days.reshape(-1, 1))
         ML_Score = s.scoring(ML_pred, y_test, weights, ybar)
         p = figure(height=350, sizing_mode="stretch_width")
         p.add_tools(HoverTool())
@@ -855,10 +869,13 @@ def display():
             </body>
         </html>
         '''
+        
+        
+
     
 X_train, X_test, y_train, y_test,  Plot_Title = bridge("Sales") 
 #app.run(debug=False)
 
 if __name__ == '__main__':
 	# Run the application on the local development server
-	app.run(debug=False)
+	app.run(debug=True)
