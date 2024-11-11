@@ -635,6 +635,8 @@ def bridge(data_set):
         
         data_loader = DataLoader(sales_data)
         data_loader.select_and_drop()
+        # add filter productline !!!
+        # inser filter for productline here
         data_loader.preprocess_data()
         data_loader.handle_missing_values()
         
@@ -648,13 +650,9 @@ def bridge(data_set):
         X_test = X_test[0]
         y_train = y_train.to_numpy()
         y_test = y_test.to_numpy()
-        Plot_Title = "Sales by date"
+        Plot_Title = "Sales by Date"
         
         return  X_train, X_test, y_train, y_test,  Plot_Title
-
-
-    
-        
 
 
 @app.route('/')
