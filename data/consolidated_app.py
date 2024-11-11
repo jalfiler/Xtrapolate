@@ -5,9 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_absolute_percentage_error
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.pipeline import make_pipeline
 
+from datetime import datetime
+from datetime import timedelta
 #Xtrapolate Functions
 import random
 
@@ -133,6 +137,7 @@ class GameManager:
             print('Would you like to play again?')
     
 
+''' # defunct with html form in gui
     def get_guess(self, YLab):
         guess_list = []
         for i in range(5):
@@ -141,6 +146,7 @@ class GameManager:
                 g = askfloat("Input", f"Enter your guess for {YLab} {i}")
             guess_list.append(g)
         return guess_list
+'''
 
 
 
@@ -170,14 +176,64 @@ class DataLoader(BaseManager):
         categorical_cols = ['STATUS', 'PRODUCTLINE', 'DEALSIZE', 'COUNTRY']
         self.data = pd.get_dummies(self.data, columns=categorical_cols, drop_first=True)
         # Drop non-numeric columns after encoding
-        self.data = self.data.select_dtypes(include=[np.number])
+        
+        #convert dates to datetime
+        self.data['ORDERDATE'] = pd.to_datetime(self.data['ORDERDATE'])
+        
+        #self.data = self.data.select_dtypes(include=[np.number, pd._libs.tslibs.timestamps.Timestamp])
         print("Non-numeric columns dropped and categorical variables encoded successfully.")
     
 
-    def split_data(self, target_column, test_size = 0.2):
-        X = self.data.drop(columns=[target_column])
-        y = self.data[target_column]
+    def split_data(self, target_y_column, target_x_columns = None, test_size = 0.2):
+        if target_x_columns == None:
+            X = self.data.drop(columns=[target_y_column])
+            
+            
+        else:
+            cols_to_drop = []
+            for i in list(self.data):
+                print(i)
+                if i in target_x_columns:
+                    inx = 1
+                else:
+                    cols_to_drop.append(i)
+                   
+            X = self.data.drop(columns=cols_to_drop)
+        y = self.data[target_y_column]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
+        return X_train, X_test, y_train, y_test
+    
+    
+    
+    def ordered_split_data(self, target_y_column, target_x_columns = None, test_value = -5):
+        od = self.data
+        
+        if target_x_columns == None:
+            od = od.sort_values(target_y_column)
+            X = od.data.drop(columns=[target_y_column])
+            
+            
+        else:
+            od = od.sort_values(target_x_columns[0])
+            cols_to_drop = []
+            for i in list(self.data):
+                print(i)
+                if i in target_x_columns:
+                    inx = 1
+                else:
+                    cols_to_drop.append(i)
+                   
+            X = od.drop(columns=cols_to_drop)
+        y = od[target_y_column]
+        X_train = X.iloc[0:test_value]
+        y_train = y.iloc[0:test_value]
+        
+        X_test = X.iloc[test_value:]
+        y_test = y.iloc[test_value:]
+        
+        
+        
+        #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=42)
         return X_train, X_test, y_train, y_test
     
 
@@ -191,8 +247,68 @@ class DataLoader(BaseManager):
         """
         return self.data.describe()
     
+   
+    def filter_data(self):
+        # Prompt the user to filter data based on specific criteria
+        filter_choice = input("Choose a filter type:\n1. Random PRODUCTLINE filter\n2. Specific PRODUCTLINE(s)\n3. Filter by Status 'Shipped'\n4. Filter by COUNTRY\nEnter choice (1, 2, 3, or 4): ")
+        
+        if filter_choice == "1":
+            # Random PRODUCTLINE filter
+            unique_productlines = self.data['PRODUCTLINE'].unique()
+            random_productline = np.random.choice(unique_productlines)
+            self.data = self.data[self.data['PRODUCTLINE'] == random_productline]
+            print(f"Data filtered randomly by PRODUCTLINE: {random_productline}")
+        
+        elif filter_choice == "2":
+            # User-specified PRODUCTLINE filter
+            print("Available PRODUCTLINE options:", self.data['PRODUCTLINE'].unique())
+            user_selection = input("Enter PRODUCTLINE(s) to filter by (comma-separated if multiple): ").split(',')
+            user_selection = [item.strip() for item in user_selection]
+            self.data = self.data[self.data['PRODUCTLINE'].isin(user_selection)]
+            print(f"Data filtered by user-selected PRODUCTLINE(s): {user_selection}")
+        
+        elif filter_choice == "3":
+            # Filter by Status 'Shipped' for entire dataset 
+            self.data = self.data[self.data['STATUS'] == 'Shipped']
+            print("Data filtered by Status = 'Shipped'")
 
+        elif filter_choice == "4":
+            # Filter by COUNTRY
+            print("Available COUNTRY options:", self.data['COUNTRY'].unique())
+            selected_country = input("Enter COUNTRY to filter by: ")
+            self.data = self.data[self.data['COUNTRY'] == selected_country]
+            print(f"Data filtered by COUNTRY: {selected_country}")
+        
+        else:
+            print("Invalid choice. Please enter 1, 2, 3, or 4.")
     
+
+    # Need to fix this and incorporate into the actual program...
+    def select_and_drop(self, n = 30):
+        '''
+        Randomly selects n rows from a dataframe and drops the rest
+
+        Args:
+            df (pd.DataFrame): the input dataframe
+            n (int): the number of rows to randomly select
+
+        Returns:
+            pd.DataFrame: a new dataframe filtered to n rows with all other rows dropped
+        '''
+        # use the sample method to randomly select
+        sample_indices = self.data.sample(n=n).index
+        self.data = self.data.loc[sample_indices]
+        return self.data
+
+    def row_count(self):
+        """
+        This function returns the number of rows in a pandas DataFrame.
+        Args:
+            df: The DataFrame to count the rows of.
+        Returns:
+            The number of rows in the DataFrame.
+        """
+        return len(self.data.index)
 
     '''
     AT: - We should create functions to filter the dataset (maybe based on country or timeframe?)
@@ -277,13 +393,13 @@ class ModelManager:
         '''
         returns the weights to feed into the scoring function in ScoreManager
         '''
-        weights = np.ones(len(X_test))
+        weights = np.ones(len(self.data))
         return weights
 
     def auto_reg_lin(self, x, y, X_test):
-        x = np.array(x)
-        y = np.array(y)
-        X_test = np.array(X_test)
+        #x = np.array(x)
+        #y = np.array(y)
+        #X_test = np.array(X_test)
         while True:
             try: 
                 model = LinearRegression().fit(x, y)
@@ -297,6 +413,20 @@ class ModelManager:
             else:
                 break
         return intercept, coefficients, pred
+
+    def polynomial_model(degree):
+        """Creates a polynomial regression model of a given degree."""
+        return make_pipeline(PolynomialFeatures(degree), LinearRegression())
+        '''
+        Example usage polynomial_model:
+        model = create_polynomial_model(2)
+        model.fit(X, y)
+
+        # Predict values
+        y_pred = model.predict(X)
+        print(y_pred)
+        '''
+
 
 # How to Use the ModelManager Class ----------------------
 # Create an instance of the class
@@ -374,7 +504,7 @@ def auto_reg_lin(x, y, X_test):
     return intercept, coefficients, pred
 '''
 
-
+'''
 # ----- RUN THE BACKEND PROGRAM !!! -----------------------------------------------------------------------------
 # Call the DataLoader Class -------------------------------------------------------------------------------------
 print('Backend code testing/debugging beginning')
@@ -387,7 +517,7 @@ data_loader.preprocess_data()
 data_loader.handle_missing_values()
 
 # Split the data (assuming 'SALES' is the target column)
-X_train, X_test, y_train, y_test = data_loader.split_data(target_column='SALES')
+X_train, X_test, y_train, y_test = data_loader.split_data(target_y_column='SALES', target_x_columns=['ORDERDATE'])
 print('X_train data: \n', X_train)
 
 
@@ -428,12 +558,21 @@ print("\n")
 print("Backend Program Executed Successfully \n \n \n")
 print("---------------------------------------------------- \n")
 
+
 # Convert to arrays for Flask
+"""
 X_train = X_train.to_numpy()
 X_test = X_test.to_numpy()
 y_train = y_train.to_numpy()
 y_test = y_test.to_numpy()
-
+"""
+'''
+data_loader = DataLoader(sales_data)
+data_loader.select_and_drop()
+print('Here is the row count of the dataframe: ',data_loader.row_count())
+data_loader.preprocess_data()
+data_loader.handle_missing_values()
+print('Here is the row count of the processed dataframe: ',data_loader.row_count())
 
 # END of BACKEND PROGRAM ----------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------------------------------
@@ -469,6 +608,7 @@ print(f"\nYou selected: {selected_topic}")
 print("\n")
 print("Here are the summary statistics of the Sales Data: \n")
 summ_stats_df = DataLoader(sales_data_df)
+summ_stats_df.select_and_drop()
 summ_stats_df.preprocess_data()
 summ_stats_df.handle_missing_values()
 summary_stats = summ_stats_df.get_summary_stats()
@@ -482,25 +622,55 @@ print('Here is a chart of the data:')
 
 
 # Debugging for Flask/Bokeh
-print("X test data: ", X_test[0])
+#print("X test data: ", X_test[0])
 
 # Run the Application Start Bokeh Charts -------------------------------------------------------------------
 Plot_Title = 'Dummy Data'
+
+def bridge(data_set):
+    
+    
+    # this is essentialy hard coded for now but I think making different paths for each dataset based on the collums we actually use makes sense, can be altered later.
+    if data_set == "Sales":
+        
+        data_loader = DataLoader(sales_data)
+        data_loader.select_and_drop()
+        # add filter productline !!!
+        # inser filter for productline here
+        data_loader.preprocess_data()
+        data_loader.handle_missing_values()
+        
+        X_train, X_test, y_train, y_test = data_loader.ordered_split_data(target_y_column='SALES', target_x_columns=['ORDERDATE'])
+        
+        X_train = X_train.to_numpy()
+        X_train = np.transpose(X_train)
+        X_train = X_train[0]
+        X_test = X_test.to_numpy()
+        X_test = np.transpose(X_test)
+        X_test = X_test[0]
+        y_train = y_train.to_numpy()
+        y_test = y_test.to_numpy()
+        Plot_Title = "Sales by Date"
+        
+        return  X_train, X_test, y_train, y_test,  Plot_Title
+
+
 @app.route('/')
-def homepage(): 
-        return f'''
+def start_page():
+    #return render_template('start_page.html')
+    return f'''
     <html lang="en">
-        <head>
-            <title>Xtrapolate</title>
-        </head>
-        <body>            
-            <form action="/guess" method = "POST">
+    <body>      
+    <h1>Welcome to Xtrapolate!</h1>
+    <h2>a data science game</h2>
+    <h3>Created by: Thomas Taylor, Jomaica Lei, Andy Turner</h3>
+    <form action="/guess" method = "POST">
     <p><input type = "submit" value = "Start game" /></p>
     </form>
-        </body>
-    </html>'''
-    
-
+    </body>
+    </html>
+    '''
+   
 # NEED TO FEED AN ARRAY INTO THE GUESS FUNCTION SO IT WORKS
 @app.route('/guess/', methods = ['POST', 'GET'])
 def guess():
@@ -508,43 +678,53 @@ def guess():
         return f"The URL /guess is accessed directly. Try going to '/form' to submit form"
     if request.method == 'POST':
         # Creating Plot Figure
-        p = figure(height=350, sizing_mode="stretch_width")
+        
+        X_train, X_test, y_train, y_test,  Plot_Title = bridge("Sales")
+        
+        test1 = [1, 2, 3]
+        test2 = [4, 5, 6]
+        
+        p = figure(height=350, x_axis_type='datetime', sizing_mode="stretch_width")
         p.add_tools(HoverTool())
         # Defining Plot to be a Scatter Plot
-        p.circle(
-            [i for i in X_train],
-            [j for j in y_train],
+        p.circle( 	[i for i in X_train],
+    		[j for j in y_train],
             size=20,
-            color="navy",
+            color="blue",
             alpha=0.5
         )
         
         # Get Chart Components
         script, div = components(p)
     
+    
         # Return the components to the HTML template
         return f'''
-        <html lang="en">
-            <head>
-                <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.4.3.min.js"></script>
-                <title>Bokeh Charts</title>
-            </head>
-            <body>
-                <h1> Graph of {Plot_Title} </h1>
-                { div }
-                { script }
+    	<html lang="en">
+    		<head>
+    			<script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.4.3.min.js"></script>
+    			<title>Bokeh Charts</title>
+    		</head>
+    		<body>
+    			<h1> Graph of {Plot_Title} </h1>
+    			{ div }
+    			{ script }
+                
+                
                 <h1> Submit a prediction for Y at the following X values </h1>
+                
                 <form action="/display" method = "POST">
-        <p> {X_test[0][0]} <input type = "number" step = "any" name = "g1" required /></p>
-        <p> {X_test[1][1]} <input type = "number" step = "any" name = "g2"  required /></p>
-        <p> {X_test[2][2]} <input type = "number" step = "any" name = "g3" required /></p>
-        <p> {X_test[3][3]} <input type = "number" step = "any" name = "g4" required /></p>
-        <p> {X_test[4][4]} <input type = "number" step = "any" name = "g5" required /></p>
+        <p> {X_test[0]} <input type = "number" step = "any" name = "g1" required /></p>
+        <p> {X_test[1]} <input type = "number" step = "any" name = "g2"  required /></p>
+        <p> {X_test[2]} <input type = "number" step = "any" name = "g3" required /></p>
+        <p> {X_test[3]} <input type = "number" step = "any" name = "g4" required /></p>
+        <p> {X_test[4]} <input type = "number" step = "any" name = "g5" required /></p>
         <p><input type = "submit" value = "Submit" /></p>
         </form>
-            </body>
-        </html>
-        '''
+                
+    		</body>
+    	</html>
+    	'''
 
 
 
@@ -553,6 +733,24 @@ def display():
     if request.method == 'GET':
         return f"The URL /data is accessed directly. Try going to '/form' to submit form"
     if request.method == 'POST':
+        
+        X_train, X_test, y_train, y_test,  Plot_Title = bridge("Sales")
+        
+        
+        train_days = []
+        test_days = []
+        for i in X_test:
+            delt = i - X_train[0]
+            d =  delt.astype('timedelta64[D]')
+            test_days.append(d / np.timedelta64(1, 'D'))
+        for i in X_train:
+            delt = i - X_train[0]
+            d =  delt.astype('timedelta64[D]')
+            train_days.append(d / np.timedelta64(1, 'D'))
+        
+        
+        train_days = np.array(train_days)
+        test_days = np.array(test_days)
         # user guesses
         user_guesses = []
         user_guesses.append(float(request.form.get("g1")))
@@ -561,14 +759,29 @@ def display():
         user_guesses.append(float(request.form.get("g4")))
         user_guesses.append(float(request.form.get("g5")))
         
-        weights = np.ones(len(X_test))
+        weights = np.ones(len(y_test))
         ybar = (sum(y_train)+sum(y_test))/(len(y_train)+len(y_test))
-        user_score = scoring(user_guesses, y_test, weights, ybar)
-        #intercept, coefficients, ML_pred = auto_reg_lin(X_train, Y_train, X_test)
+        
+        
+        print(user_guesses)
+        
+        s = ScoreManager()
+        
+        user_score = s.scoring(user_guesses, y_test, weights, ybar)
+        
+        
+        print(user_score)
+        regr = ModelManager()
+        
+        #ntercept, coefficients, ML_pred = regr.auto_reg_lin(X_train, y_train, X_test)
+        
+        
+        regr.fit(train_days.reshape(-1, 1), y_train)
+        
         gamecoefficients = regr.get_coefficients()
         intercepts = regr.get_intercept()
-        ML_pred = regr.predict()
-        ML_Score = 0 #scoring(ML_pred, Y_test, weights, ybar)
+        ML_pred = regr.predict(test_days.reshape(-1, 1))
+        ML_Score = s.scoring(ML_pred, y_test, weights, ybar)
         p = figure(height=350, sizing_mode="stretch_width")
         p.add_tools(HoverTool())
 
@@ -601,7 +814,7 @@ def display():
         
         p.circle(
             [i for i in X_test],
-            [j for j in y_pred],
+            [j for j in ML_pred],
             size=5,
             color="red",
             alpha=0.8,
@@ -656,5 +869,13 @@ def display():
             </body>
         </html>
         '''
+        
+        
 
-app.run(debug=False)
+    
+X_train, X_test, y_train, y_test,  Plot_Title = bridge("Sales") 
+#app.run(debug=False)
+
+if __name__ == '__main__':
+	# Run the application on the local development server
+	app.run(debug=True)

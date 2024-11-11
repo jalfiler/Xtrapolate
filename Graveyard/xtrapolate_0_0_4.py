@@ -370,6 +370,3 @@ g_button.pack()
 
 # run the gui 
 window.mainloop() 
-
-
-
